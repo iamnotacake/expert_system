@@ -13,7 +13,7 @@ fn main() {
             Ok(line) => {
                 match parser::fact(&line) {
                     Ok(fact) => {
-                        dbg!(fact);
+                        dbg!(&fact);
 
                         // TODO
                     }
@@ -21,6 +21,8 @@ fn main() {
                         eprintln!("{}", err);
                     }
                 }
+
+                rl.add_history_entry(line);
             }
             Err(ReadlineError::Interrupted) => {}
             Err(ReadlineError::Eof) => break,

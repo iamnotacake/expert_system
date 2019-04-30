@@ -31,5 +31,36 @@
 // pub equation -> Expr
 //     = x:expr "=" y:expr { Equation(box x, box y) }
 
-pub fact -> ()
-    = "XXX" { () }
+use super::Fact;
+
+pub fact -> Fact
+    = IfThen
+
+whitespace
+    = #quiet<[ \t]+>
+
+Atom -> Fact
+    = whitespace? l:Char whitespace? { l }
+    / whitespace? l:Not whitespace? { l }
+    / whitespace? l:And whitespace? { l }
+    / whitespace? l:Or whitespace? { l }
+    / whitespace? l:Xor whitespace? { l }
+    / whitespace? "(" whitespace? l:Atom whitespace? ")" whitespace? { l }
+
+Char -> Fact
+    = c:$([A-Z]) { Fact::Char(c.chars().nth(0).unwrap()) }
+
+Not -> Fact
+    = "!" l:Atom { Fact::Not(box l) }
+
+And -> Fact
+    = l:Atom "+" r:Atom { Fact::And(box l, box r) }
+
+Or -> Fact
+    = l:Atom "|" r:Atom { Fact::Or(box l, box r) }
+
+Xor -> Fact
+    = l:Atom "^" r:Atom { Fact::Xor(box l, box r) }
+
+IfThen -> Fact
+    = l:Atom "=>" r:Atom { Fact::IfThen(box l, box r) }
