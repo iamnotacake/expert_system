@@ -17,8 +17,11 @@ fn main() {
 
                         // TODO
                     }
-                    Err(err) => {
-                        eprintln!("{}", err);
+                    Err(expert_system::parser::ParseError {
+                        offset, expected, ..
+                    }) => {
+                        eprintln!("  {}^", " ".repeat(offset));
+                        eprintln!("Expected: {:?}", expected);
                     }
                 }
 

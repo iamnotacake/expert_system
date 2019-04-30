@@ -1,36 +1,3 @@
-// use super::Expr;
-// use super::Expr::*;
-//
-// whitespace
-//     = #quiet<[ \t]+>
-//
-// negative -> Expr
-//     = "-" x:number { Neg(box x) }
-//     / "-" x:var { Neg(box x) }
-//     / "-" x:atom { Neg(box x) }
-//
-// pub atom -> Expr
-//     = number
-//     / var
-//     / whitespace? "(" whitespace? x:expr whitespace? ")" whitespace? { x }
-//     / negative
-//
-// pub var -> Expr
-//     = whitespace? v:$("x") whitespace? { Variable(v.chars().nth(0).unwrap()) }
-//
-// pub number -> Expr
-//     = whitespace? n:$([0-9]+ ("." [0-9]+)?) whitespace? { Number(n.parse().unwrap()) }
-//
-// pub expr -> Expr = #infix<atom> {
-//     #L x "+" y { Add(vec![x, y]) }
-//        x "-" y { Add(vec![x, Neg(box y)]) }
-//     #L x "*" y { Mul(1.0, vec![x, y]) }
-//     #R x "^" y { Pow(box x, box y) }
-// }
-//
-// pub equation -> Expr
-//     = x:expr "=" y:expr { Equation(box x, box y) }
-
 use super::Fact;
 
 pub fact -> Fact
@@ -40,12 +7,9 @@ whitespace
     = #quiet<[ \t]+>
 
 Atom -> Fact
-    = whitespace? l:Char whitespace? { l }
+    = whitespace? "(" whitespace? l:Expr whitespace? ")" whitespace? { l }
+    / whitespace? l:Char whitespace? { l }
     / whitespace? l:Not whitespace? { l }
-    / whitespace? l:And whitespace? { l }
-    / whitespace? l:Or whitespace? { l }
-    / whitespace? l:Xor whitespace? { l }
-    / whitespace? "(" whitespace? l:Atom whitespace? ")" whitespace? { l }
 
 Char -> Fact
     = c:$([A-Z]) { Fact::Char(c.chars().nth(0).unwrap()) }
@@ -53,14 +17,11 @@ Char -> Fact
 Not -> Fact
     = "!" l:Atom { Fact::Not(box l) }
 
-And -> Fact
-    = l:Atom "+" r:Atom { Fact::And(box l, box r) }
-
-Or -> Fact
-    = l:Atom "|" r:Atom { Fact::Or(box l, box r) }
-
-Xor -> Fact
-    = l:Atom "^" r:Atom { Fact::Xor(box l, box r) }
+Expr -> Fact = #infix<Atom> {
+    #L l "^" r { Fact::Xor(box l, box r) }
+    #L l "|" r { Fact::Or(box l, box r) }
+    #L l "+" r { Fact::And(box l, box r) }
+}
 
 IfThen -> Fact
-    = l:Atom "=>" r:Atom { Fact::IfThen(box l, box r) }
+    = l:Expr "=>" r:Expr { Fact::IfThen(box l, box r) }
