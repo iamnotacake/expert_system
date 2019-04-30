@@ -11,7 +11,7 @@ fn main() {
     loop {
         match rl.readline("> ") {
             Ok(line) => {
-                match parser::fact(&line) {
+                match parser::query(&line) {
                     Ok(fact) => {
                         dbg!(&fact);
 

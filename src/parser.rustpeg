@@ -1,4 +1,11 @@
+use super::Query;
 use super::Fact;
+use super::Facts;
+
+pub query -> Query
+    = l:fact { Query::Fact(l) }
+    / l:given { Query::Given(l) }
+    / l:find { Query::Find(l) }
 
 pub fact -> Fact
     = IfThen
@@ -29,3 +36,9 @@ IfThen -> Fact
 
 IfAndOnlyIf -> Fact
     = l:Expr "<=>" r:Expr { Fact::IfAndOnlyIf(box l, box r) }
+
+pub given -> Facts
+    = "=" c:$([A-Z]+) { Facts::new(c) }
+
+pub find -> Facts
+    = "?" c:$([A-Z]+) { Facts::new(c) }
