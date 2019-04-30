@@ -2,6 +2,7 @@ use super::Fact;
 
 pub fact -> Fact
     = IfThen
+    / IfAndOnlyIf
 
 whitespace
     = #quiet<[ \t]+>
@@ -25,3 +26,6 @@ Expr -> Fact = #infix<Atom> {
 
 IfThen -> Fact
     = l:Expr "=>" r:Expr { Fact::IfThen(box l, box r) }
+
+IfAndOnlyIf -> Fact
+    = l:Expr "<=>" r:Expr { Fact::IfAndOnlyIf(box l, box r) }

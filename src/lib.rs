@@ -12,5 +12,5 @@ pub enum Fact {
     Or(Box<Fact>, Box<Fact>),
     Xor(Box<Fact>, Box<Fact>),
     IfThen(Box<Fact>, Box<Fact>),
-    // IfAndOnlyIf(Box<Fact>, Box<Fact>),
+    IfAndOnlyIf(Box<Fact>, Box<Fact>),
 }
