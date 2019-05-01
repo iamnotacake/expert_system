@@ -2,8 +2,8 @@ use std::fmt;
 
 #[derive(Debug, PartialEq)]
 pub struct Facts {
-    pub yes: [bool; 26],
-    pub no: [bool; 26],
+    yes: [bool; 26],
+    no: [bool; 26],
 }
 
 impl Facts {
@@ -16,6 +16,14 @@ impl Facts {
         }
 
         Facts { yes, no }
+    }
+
+    pub fn yes(&self, c: char) -> bool {
+        self.yes[(c as usize) - ('A' as usize)]
+    }
+
+    pub fn no(&self, c: char) -> bool {
+        self.no[(c as usize) - ('A' as usize)]
     }
 }
 
