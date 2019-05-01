@@ -22,7 +22,7 @@ Atom -> Rule
     / whitespace? l:Not whitespace? { l }
 
 Char -> Rule
-    = c:$([A-Z]) { Rule::Char(c.chars().nth(0).unwrap()) }
+    = c:$([a-zA-Z]) { Rule::Char(c.chars().nth(0).unwrap().to_ascii_uppercase()) }
 
 Not -> Rule
     = "!" l:Atom { Rule::Not(box l) }
@@ -40,7 +40,7 @@ IfAndOnlyIf -> Rule
     = l:Expr "<=>" r:Expr { Rule::IfAndOnlyIf(box l, box r) }
 
 pub given -> Facts
-    = "=" c:$([A-Z]+) { Facts::new(c) }
+    = "=" c:$([a-zA-Z]+) { Facts::new(c) }
 
 pub find -> Facts
-    = "?" c:$([A-Z]+) { Facts::new(c) }
+    = "?" c:$([a-zA-Z]+) { Facts::new(c) }

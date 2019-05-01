@@ -11,7 +11,7 @@ impl Facts {
         let mut yes = [false; 26];
         let mut no = [false; 26];
 
-        for c in chars.chars() {
+        for c in chars.chars().map(|c| c.to_ascii_uppercase()) {
             yes[(c as usize) - ('A' as usize)] = true;
         }
 
