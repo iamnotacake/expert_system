@@ -29,10 +29,10 @@ impl Facts {
 
 impl fmt::Display for Facts {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "( ")?;
+        write!(f, "(")?;
 
         if self.yes.iter().any(|&c| c) {
-            write!(f, "true: ")?;
+            write!(f, " true: ")?;
 
             for (idx, &val) in self.yes.iter().enumerate() {
                 if val {
@@ -41,6 +41,8 @@ impl fmt::Display for Facts {
                     write!(f, ".")?;
                 }
             }
+
+            write!(f, " ")?;
         }
 
         if self.no.iter().any(|&c| c) {
@@ -53,8 +55,10 @@ impl fmt::Display for Facts {
                     write!(f, ".")?;
                 }
             }
+
+            write!(f, " ")?;
         }
 
-        write!(f, " )")
+        write!(f, ")")
     }
 }
