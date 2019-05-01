@@ -1,5 +1,6 @@
 use std::fmt;
 
+#[derive(Debug)]
 pub struct Facts {
     yes: [bool; 26],
     no: [bool; 26],
@@ -18,30 +19,34 @@ impl Facts {
     }
 }
 
-impl fmt::Debug for Facts {
+impl fmt::Display for Facts {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Facts {{ true: ")?;
+        write!(f, "( ")?;
 
-        for (idx, &val) in self.yes.iter().enumerate() {
-            if val {
-                write!(f, "{}", (idx + 'A' as usize) as u8 as char)?;
-            } else {
-                write!(f, ".")?;
+        if self.yes.iter().any(|&c| c) {
+            write!(f, "true: ")?;
+
+            for (idx, &val) in self.yes.iter().enumerate() {
+                if val {
+                    write!(f, "{}", (idx + 'A' as usize) as u8 as char)?;
+                } else {
+                    write!(f, ".")?;
+                }
             }
         }
 
-        write!(f, " false: ")?;
+        if self.no.iter().any(|&c| c) {
+            write!(f, " false: ")?;
 
-        for (idx, &val) in self.no.iter().enumerate() {
-            if val {
-                write!(f, "{}", (idx + 'A' as usize) as u8 as char)?;
-            } else {
-                write!(f, ".")?;
+            for (idx, &val) in self.no.iter().enumerate() {
+                if val {
+                    write!(f, "{}", (idx + 'A' as usize) as u8 as char)?;
+                } else {
+                    write!(f, ".")?;
+                }
             }
         }
 
-        write!(f, " }}")?;
-
-        Ok(())
+        write!(f, " )")
     }
 }

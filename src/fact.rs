@@ -16,15 +16,13 @@ impl fmt::Display for Fact {
         use Fact::*;
 
         match self {
-            Char(ref c) => write!(f, "{}", c)?,
-            Not(ref l) => write!(f, "!({})", l)?,
-            And(ref l, ref r) => write!(f, "({} + {})", l, r)?,
-            Or(ref l, ref r) => write!(f, "({} | {})", l, r)?,
-            Xor(ref l, ref r) => write!(f, "({} ^ {})", l, r)?,
-            IfThen(ref l, ref r) => write!(f, "{} => {}", l, r)?,
-            IfAndOnlyIf(ref l, ref r) => write!(f, "{} <=> {}", l, r)?,
+            Char(ref c) => write!(f, "{}", c),
+            Not(ref l) => write!(f, "!({})", l),
+            And(ref l, ref r) => write!(f, "({} + {})", l, r),
+            Or(ref l, ref r) => write!(f, "({} | {})", l, r),
+            Xor(ref l, ref r) => write!(f, "({} ^ {})", l, r),
+            IfThen(ref l, ref r) => write!(f, "{} => {}", l, r),
+            IfAndOnlyIf(ref l, ref r) => write!(f, "{} <=> {}", l, r),
         }
-
-        Ok(())
     }
 }
