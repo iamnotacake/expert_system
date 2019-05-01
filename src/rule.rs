@@ -18,10 +18,24 @@ impl Rule {
         use Rule::*;
 
         match self {
-            IfThen(ref l, _) => l.contains_facts_recursive(facts),
-            IfAndOnlyIf(ref l, ref r) => {
-                l.contains_facts_recursive(facts) || r.contains_facts_recursive(facts)
+            IfThen(ref l, _) => l.can_take_recursive(facts),
+            IfAndOnlyIf(ref l, ref r) => l.can_take_recursive(facts) || r.can_take_recursive(facts),
+            _ => unreachable!(),
+        }
+    }
+
+    fn can_take_recursive(&self, facts: &Facts) -> bool {
+        use Rule::*;
+
+        match self {
+            Char(ref c) => {
+                let idx = (*c as usize) - ('A' as usize);
+                facts.yes[idx]
             }
+            Not(ref l) => !l.can_take_recursive(facts),
+            And(ref l, ref r) => l.can_take_recursive(facts) && r.can_take_recursive(facts),
+            Or(ref l, ref r) => l.can_take_recursive(facts) || r.can_take_recursive(facts),
+            Xor(ref l, ref r) => l.can_take_recursive(facts) ^ r.can_take_recursive(facts),
             _ => unreachable!(),
         }
     }
@@ -30,15 +44,13 @@ impl Rule {
         use Rule::*;
 
         match self {
-            IfThen(_, ref r) => r.contains_facts_recursive(facts),
-            IfAndOnlyIf(ref l, ref r) => {
-                l.contains_facts_recursive(facts) || r.contains_facts_recursive(facts)
-            }
+            IfThen(_, ref r) => r.can_give_recursive(facts),
+            IfAndOnlyIf(ref l, ref r) => l.can_give_recursive(facts) || r.can_give_recursive(facts),
             _ => unreachable!(),
         }
     }
 
-    fn contains_facts_recursive(&self, facts: &Facts) -> bool {
+    fn can_give_recursive(&self, facts: &Facts) -> bool {
         use Rule::*;
 
         match self {
@@ -46,16 +58,10 @@ impl Rule {
                 let idx = (*c as usize) - ('A' as usize);
                 facts.yes[idx] || facts.no[idx]
             }
-            Not(ref l) => l.contains_facts_recursive(facts),
-            And(ref l, ref r) => {
-                l.contains_facts_recursive(facts) || r.contains_facts_recursive(facts)
-            }
-            Or(ref l, ref r) => {
-                l.contains_facts_recursive(facts) || r.contains_facts_recursive(facts)
-            }
-            Xor(ref l, ref r) => {
-                l.contains_facts_recursive(facts) || r.contains_facts_recursive(facts)
-            }
+            Not(ref l) => l.can_give_recursive(facts),
+            And(ref l, ref r) => l.can_give_recursive(facts) || r.can_give_recursive(facts),
+            Or(ref l, ref r) => l.can_give_recursive(facts) || r.can_give_recursive(facts),
+            Xor(ref l, ref r) => l.can_give_recursive(facts) || r.can_give_recursive(facts),
             _ => unreachable!(),
         }
     }
