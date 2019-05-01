@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Hash)]
 pub enum Rule {
     Char(char),
     Not(Box<Rule>),

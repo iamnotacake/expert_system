@@ -4,9 +4,12 @@ extern crate rustyline;
 
 use expert_system::{parser, Facts, Query, Rule};
 use rustyline::error::ReadlineError;
+use std::collections::HashSet;
 
 fn main() {
     let mut rl = rustyline::Editor::<()>::new();
+    let mut rules = HashSet::new();
+    let mut facts = Facts::new("");
 
     loop {
         match rl.readline("> ") {
@@ -15,18 +18,27 @@ fn main() {
                     Ok(query) => match query {
                         Query::Rule(rule) => {
                             println!("Rule: {}", rule);
-
-                            // TODO
+                            rules.insert(rule);
                         }
-                        Query::Given(facts) => {
-                            println!("Have: {}", facts);
-
-                            // TODO
+                        Query::Given(list) => {
+                            println!("Have: {}", &list);
+                            facts = list;
                         }
                         Query::Find(find) => {
                             println!("Find: {}", find);
 
                             // TODO
+                        }
+                        Query::Dump => {
+                            println!("*** Rules:");
+                            for rule in rules.iter() {
+                                println!("***   {}", rule);
+                            }
+
+                            println!("*** Facts: {}", facts);
+                        }
+                        Query::Delete(rule) => {
+                            unimplemented!();
                         }
                     },
                     Err(expert_system::parser::ParseError {

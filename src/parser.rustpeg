@@ -6,6 +6,8 @@ pub query -> Query
     = l:rule { Query::Rule(l) }
     / l:given { Query::Given(l) }
     / l:find { Query::Find(l) }
+    / "dump" { Query::Dump }
+    / "delete" whitespace+ l:rule { Query::Delete(l) }
 
 pub rule -> Rule
     = IfThen

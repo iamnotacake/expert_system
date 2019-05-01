@@ -13,6 +13,8 @@ pub enum Query {
     Rule(Rule),
     Given(Facts),
     Find(Facts),
+    Dump,
+    Delete(Rule),
 }
 
 pub mod parser {
