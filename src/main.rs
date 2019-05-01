@@ -38,7 +38,9 @@ fn main() {
                             println!("*** Facts: {}", facts);
                         }
                         Query::Delete(rule) => {
-                            unimplemented!();
+                            if !rules.remove(&rule) {
+                                eprintln!("Rule not found");
+                            }
                         }
                     },
                     Err(expert_system::parser::ParseError {
