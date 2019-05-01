@@ -1,19 +1,19 @@
 use std::fmt;
 
-#[derive(Debug)]
-pub enum Fact {
+#[derive(Debug, PartialEq)]
+pub enum Rule {
     Char(char),
-    Not(Box<Fact>),
-    And(Box<Fact>, Box<Fact>),
-    Or(Box<Fact>, Box<Fact>),
-    Xor(Box<Fact>, Box<Fact>),
-    IfThen(Box<Fact>, Box<Fact>),
-    IfAndOnlyIf(Box<Fact>, Box<Fact>),
+    Not(Box<Rule>),
+    And(Box<Rule>, Box<Rule>),
+    Or(Box<Rule>, Box<Rule>),
+    Xor(Box<Rule>, Box<Rule>),
+    IfThen(Box<Rule>, Box<Rule>),
+    IfAndOnlyIf(Box<Rule>, Box<Rule>),
 }
 
-impl fmt::Display for Fact {
+impl fmt::Display for Rule {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use Fact::*;
+        use Rule::*;
 
         match self {
             Char(ref c) => write!(f, "{}", c),

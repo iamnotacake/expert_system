@@ -1,41 +1,41 @@
 use super::Query;
-use super::Fact;
+use super::Rule;
 use super::Facts;
 
 pub query -> Query
-    = l:fact { Query::Fact(l) }
+    = l:rule { Query::Rule(l) }
     / l:given { Query::Given(l) }
     / l:find { Query::Find(l) }
 
-pub fact -> Fact
+pub rule -> Rule
     = IfThen
     / IfAndOnlyIf
 
 whitespace
     = #quiet<[ \t]+>
 
-Atom -> Fact
+Atom -> Rule
     = whitespace? "(" whitespace? l:Expr whitespace? ")" whitespace? { l }
     / whitespace? l:Char whitespace? { l }
     / whitespace? l:Not whitespace? { l }
 
-Char -> Fact
-    = c:$([A-Z]) { Fact::Char(c.chars().nth(0).unwrap()) }
+Char -> Rule
+    = c:$([A-Z]) { Rule::Char(c.chars().nth(0).unwrap()) }
 
-Not -> Fact
-    = "!" l:Atom { Fact::Not(box l) }
+Not -> Rule
+    = "!" l:Atom { Rule::Not(box l) }
 
-Expr -> Fact = #infix<Atom> {
-    #L l "^" r { Fact::Xor(box l, box r) }
-    #L l "|" r { Fact::Or(box l, box r) }
-    #L l "+" r { Fact::And(box l, box r) }
+Expr -> Rule = #infix<Atom> {
+    #L l "^" r { Rule::Xor(box l, box r) }
+    #L l "|" r { Rule::Or(box l, box r) }
+    #L l "+" r { Rule::And(box l, box r) }
 }
 
-IfThen -> Fact
-    = l:Expr "=>" r:Expr { Fact::IfThen(box l, box r) }
+IfThen -> Rule
+    = l:Expr "=>" r:Expr { Rule::IfThen(box l, box r) }
 
-IfAndOnlyIf -> Fact
-    = l:Expr "<=>" r:Expr { Fact::IfAndOnlyIf(box l, box r) }
+IfAndOnlyIf -> Rule
+    = l:Expr "<=>" r:Expr { Rule::IfAndOnlyIf(box l, box r) }
 
 pub given -> Facts
     = "=" c:$([A-Z]+) { Facts::new(c) }

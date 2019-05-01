@@ -5,12 +5,12 @@ use std::fmt;
 pub mod facts;
 pub use facts::Facts;
 
-pub mod fact;
-pub use fact::Fact;
+pub mod rule;
+pub use rule::Rule;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Query {
-    Fact(Fact),
+    Rule(Rule),
     Given(Facts),
     Find(Facts),
 }

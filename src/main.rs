@@ -2,7 +2,7 @@ extern crate expert_system;
 extern crate failure;
 extern crate rustyline;
 
-use expert_system::{parser, Fact, Facts, Query};
+use expert_system::{parser, Facts, Query, Rule};
 use rustyline::error::ReadlineError;
 
 fn main() {
@@ -13,8 +13,8 @@ fn main() {
             Ok(line) => {
                 match parser::query(&line) {
                     Ok(query) => match query {
-                        Query::Fact(fact) => {
-                            println!("Fact: {}", fact);
+                        Query::Rule(rule) => {
+                            println!("Rule: {}", rule);
 
                             // TODO
                         }
