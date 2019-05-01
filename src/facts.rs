@@ -2,8 +2,8 @@ use std::fmt;
 
 #[derive(Debug, PartialEq)]
 pub struct Facts {
-    yes: [bool; 26],
-    no: [bool; 26],
+    pub yes: [bool; 26],
+    pub no: [bool; 26],
 }
 
 impl Facts {
