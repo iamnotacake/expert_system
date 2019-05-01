@@ -5,6 +5,7 @@ authors = ["Anatoliy Lischynsky <alischyn@student.unit.ua>"]
 edition = "2018"
 
 [dependencies]
+crossterm = "0.9.3"
 failure = "0.1.5"
 rustyline = "4.0.0"
 
