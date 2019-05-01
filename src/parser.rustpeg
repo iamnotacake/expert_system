@@ -40,7 +40,7 @@ IfAndOnlyIf -> Rule
     = l:Expr "<=>" r:Expr { Rule::IfAndOnlyIf(box l, box r) }
 
 pub given -> Facts
-    = "=" c:$([a-zA-Z]+) { Facts::new(c) }
+    = "=" c:$([a-zA-Z]*) { Facts::new(c) }
 
 pub find -> Facts
     = "?" c:$([a-zA-Z]+) { Facts::new(c) }
