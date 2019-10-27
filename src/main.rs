@@ -8,6 +8,10 @@ use expert_system::{parser, Facts, Query, Rule};
 use rustyline::error::ReadlineError;
 use std::collections::HashSet;
 
+fn run(facts: &HashSet<Rule>, given: &Facts, find: &Facts, level: usize) -> Facts {
+    unimplemented!()
+}
+
 fn main() {
     let mut rl = rustyline::Editor::<()>::new();
     let mut rules = HashSet::new();
@@ -29,7 +33,8 @@ fn main() {
                         Query::Find(find) => {
                             println!("Find: {}", find);
 
-                            // TODO
+                            let result = run(&rules, &facts, &find, 0);
+                            println!("Result: {}", result);
                         }
                         Query::Dump => {
                             println!("*** Rules:");
@@ -45,11 +50,9 @@ fn main() {
                             }
                         }
                     },
-                    Err(expert_system::parser::ParseError {
-                        offset, expected, ..
-                    }) => {
-                        eprintln!("  {}^", " ".repeat(offset));
-                        eprintln!("Expected: {:?}", expected);
+                    Err(e) => {
+                        eprintln!("  {}^", " ".repeat(e.location.offset));
+                        eprintln!("{}", e);
                     }
                 }
 

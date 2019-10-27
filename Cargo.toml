@@ -5,9 +5,7 @@ authors = ["Anatoliy Lischynsky <alischyn@student.unit.ua>"]
 edition = "2018"
 
 [dependencies]
+peg = "0.6.0"
 crossterm = "0.9.3"
 failure = "0.1.5"
 rustyline = "4.0.0"
-
-[build-dependencies]
-peg = "0.5.7"
