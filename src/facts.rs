@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use std::fmt;
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Facts {
     yes: HashSet<char>,
     no: HashSet<char>,
@@ -19,12 +19,27 @@ impl Facts {
         Facts { yes, no }
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.yes.is_empty() && self.no.is_empty()
+    }
+
     pub fn yes(&self, c: char) -> bool {
         self.yes.get(&c).is_some()
     }
 
     pub fn no(&self, c: char) -> bool {
         self.no.get(&c).is_some()
+    }
+
+    /// Remove facts that are known in `other` from self
+    pub fn remove_contained(&mut self, other: &Facts) {
+        for fact in other.yes.iter() {
+            self.yes.remove(fact);
+        }
+
+        for fact in other.no.iter() {
+            self.yes.remove(fact);
+        }
     }
 }
 

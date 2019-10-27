@@ -2,7 +2,7 @@ use std::fmt;
 
 use super::Facts;
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Rule {
     Char(char),
     Not(Box<Rule>),
@@ -51,7 +51,7 @@ impl Rule {
         use Rule::*;
 
         match self {
-            Char(ref c) => facts.no(*c) || !facts.yes(*c),
+            Char(ref c) => facts.no(*c) || facts.yes(*c),
             Not(ref l) => l.can_give_recursive(facts),
             And(ref l, ref r) => l.can_give_recursive(facts) || r.can_give_recursive(facts),
             Or(ref l, ref r) => l.can_give_recursive(facts) || r.can_give_recursive(facts),
