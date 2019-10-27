@@ -1,29 +1,30 @@
+use std::collections::HashSet;
 use std::fmt;
 
 #[derive(Debug, PartialEq)]
 pub struct Facts {
-    yes: [bool; 26],
-    no: [bool; 26],
+    yes: HashSet<char>,
+    no: HashSet<char>,
 }
 
 impl Facts {
     pub fn new(chars: &str) -> Facts {
-        let mut yes = [false; 26];
-        let mut no = [false; 26];
+        let mut yes = HashSet::with_capacity(32);
+        let mut no = HashSet::with_capacity(32);
 
         for c in chars.chars().map(|c| c.to_ascii_uppercase()) {
-            yes[(c as usize) - ('A' as usize)] = true;
+            yes.insert(c);
         }
 
         Facts { yes, no }
     }
 
     pub fn yes(&self, c: char) -> bool {
-        self.yes[(c as usize) - ('A' as usize)]
+        self.yes.get(&c).is_some()
     }
 
     pub fn no(&self, c: char) -> bool {
-        self.no[(c as usize) - ('A' as usize)]
+        self.no.get(&c).is_some()
     }
 }
 
@@ -31,28 +32,34 @@ impl fmt::Display for Facts {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "(")?;
 
-        if self.yes.iter().any(|&c| c) {
+        if !self.yes.is_empty() {
             write!(f, " true: ")?;
 
-            for (idx, &val) in self.yes.iter().enumerate() {
-                if val {
-                    write!(f, "{}", (idx + 'A' as usize) as u8 as char)?;
+            let mut keys = self.yes.iter().collect::<Vec<_>>();
+            keys.sort();
+
+            for (idx, key) in keys.iter().enumerate() {
+                if idx == 0 {
+                    write!(f, "{}", key);
                 } else {
-                    write!(f, ".")?;
+                    write!(f, ", {}", key);
                 }
             }
 
             write!(f, " ")?;
         }
 
-        if self.no.iter().any(|&c| c) {
+        if !self.no.is_empty() {
             write!(f, " false: ")?;
 
-            for (idx, &val) in self.no.iter().enumerate() {
-                if val {
-                    write!(f, "{}", (idx + 'A' as usize) as u8 as char)?;
+            let mut keys = self.no.iter().collect::<Vec<_>>();
+            keys.sort();
+
+            for (idx, key) in keys.iter().enumerate() {
+                if idx == 0 {
+                    write!(f, "{}", key);
                 } else {
-                    write!(f, ".")?;
+                    write!(f, ", {}", key);
                 }
             }
 
