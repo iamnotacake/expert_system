@@ -1,7 +1,5 @@
 #![feature(box_syntax)]
 
-use std::fmt;
-
 pub mod facts;
 pub use facts::Facts;
 

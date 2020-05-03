@@ -10,7 +10,7 @@ pub struct Facts {
 impl Facts {
     pub fn new(chars: &str) -> Facts {
         let mut yes = HashSet::with_capacity(32);
-        let mut no = HashSet::with_capacity(32);
+        let no = HashSet::with_capacity(32);
 
         for c in chars.chars().map(|c| c.to_ascii_uppercase()) {
             yes.insert(c);

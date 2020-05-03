@@ -1,9 +1,3 @@
-extern crate crossterm;
-extern crate expert_system;
-extern crate failure;
-extern crate rustyline;
-
-use crossterm::Colorize;
 use expert_system::{parser, Facts, Query, Rule};
 use rustyline::error::ReadlineError;
 use std::collections::HashSet;
