@@ -1,3 +1,4 @@
+use crossterm::style::Colorize;
 use expert_system::{parser, Facts, Query, Rule};
 use rustyline::error::ReadlineError;
 use std::collections::HashSet;
@@ -12,12 +13,12 @@ fn run(usable_rules: HashSet<Rule>, given: Facts, mut find: Facts, level: usize)
     find.remove_contained(&given);
 
     if find.is_empty() {
-        levelprintln!("search list empty, returning {}", given);
+        levelprintln!("search list empty, returning {}", given.to_string().yellow());
         return given;
     }
 
     if usable_rules.is_empty() {
-        levelprintln!("no more rules to use, returning {}", given);
+        levelprintln!("no more rules to use, returning {}", given.to_string().green());
         return given;
     }
 
@@ -27,10 +28,10 @@ fn run(usable_rules: HashSet<Rule>, given: Facts, mut find: Facts, level: usize)
             let mut usable_rules = usable_rules.clone();
             usable_rules.remove(&rule);
 
-            levelprintln!("try {} with {}", rule, given);
+            levelprintln!("try {} with {}", rule.to_string().blue(), given.to_string().green());
             run(usable_rules, given.clone(), find.clone(), level + 1);
         } else {
-            levelprintln!("{} can't give {}", rule, find);
+            levelprintln!("{} can't give {}", rule.to_string().blue(), find.to_string().yellow());
         }
     }
 
