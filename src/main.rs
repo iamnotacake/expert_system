@@ -3,11 +3,14 @@ use expert_system::{parser, Facts, Query, Rule};
 use rustyline::error::ReadlineError;
 use std::collections::HashSet;
 
-fn run(usable_rules: HashSet<Rule>, given: Facts, mut find: Facts, level: usize) -> Facts {
+fn run(usable_rules: HashSet<Rule>, mut given: Facts, mut find: Facts, level: usize) -> Facts {
     macro_rules! levelprintln {
-        ($fmt:expr, $($args:expr),*) => {
-            println!(concat!("{}", $fmt), "  ".repeat(level), $($args),*)
-        }
+        ($fmt:literal) => {
+            println!(concat!("{}", $fmt), "  ".repeat(level))
+        };
+        ($fmt:literal, $( $args:expr ),*) => {
+            println!(concat!("{}", $fmt), "  ".repeat(level), $( $args ),*)
+        };
     }
 
     find.remove_contained(&given);
@@ -27,15 +30,31 @@ fn run(usable_rules: HashSet<Rule>, given: Facts, mut find: Facts, level: usize)
             // recurse into
             levelprintln!("try {} with {}", rule.to_string().blue(), given.to_string().green());
 
-            let mut usable_rules = usable_rules.clone();
-            usable_rules.remove(&rule);
-            run(usable_rules, given.clone(), find.clone(), level + 1);
+            if let Some(outcomes) = rule.try_match(&given) {
+                for outcome in outcomes.iter() {
+                    if let Some(given) = given.merge(outcome) {
+                        let mut usable_rules = usable_rules.clone();
+                        usable_rules.remove(&rule);
+
+                        run(usable_rules, given, find.clone(), level + 1);
+                    }
+                }
+            } else {
+                // levelprintln!("not enough input facts");
+
+                let mut usable_rules = usable_rules.clone();
+                usable_rules.remove(&rule);
+
+                let find = find.merge(&rule.possible_inputs_all()).unwrap();
+
+                given = given.merge(&run(usable_rules, given.clone(), find, level + 1)).unwrap();
+            }
         } else {
             levelprintln!("{} can't give {}", rule.to_string().blue(), find.to_string().yellow());
         }
     }
 
-    unimplemented!()
+    return given;
 }
 
 fn main() {
