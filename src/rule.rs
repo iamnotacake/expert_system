@@ -67,12 +67,41 @@ impl fmt::Display for Rule {
 
         match self {
             Char(ref c) => write!(f, "{}", c),
+            Not(box Char(ref c)) => write!(f, "!{}", c),
             Not(ref l) => write!(f, "!({})", l),
             And(ref l, ref r) => write!(f, "({} + {})", l, r),
             Or(ref l, ref r) => write!(f, "({} | {})", l, r),
             Xor(ref l, ref r) => write!(f, "({} ^ {})", l, r),
-            IfThen(ref l, ref r) => write!(f, "{} => {}", l, r),
-            IfAndOnlyIf(ref l, ref r) => write!(f, "{} <=> {}", l, r),
+            IfThen(ref l, ref r) => {
+                match l {
+                    box And(ref l, ref r) => write!(f, "{} + {}", l, r)?,
+                    box Or(ref l, ref r) => write!(f, "{} | {}", l, r)?,
+                    box Xor(ref l, ref r) => write!(f, "{} ^ {}", l, r)?,
+                    box x => write!(f, "{}", x)?,
+                }
+                write!(f, " => ")?;
+                match r {
+                    box And(ref l, ref r) => write!(f, "{} + {}", l, r),
+                    box Or(ref l, ref r) => write!(f, "{} | {}", l, r),
+                    box Xor(ref l, ref r) => write!(f, "{} ^ {}", l, r),
+                    box x => write!(f, "{}", x),
+                }
+            }
+            IfAndOnlyIf(ref l, ref r) => {
+                match l {
+                    box And(ref l, ref r) => write!(f, "{} + {}", l, r)?,
+                    box Or(ref l, ref r) => write!(f, "{} | {}", l, r)?,
+                    box Xor(ref l, ref r) => write!(f, "{} ^ {}", l, r)?,
+                    box x => write!(f, "{}", x)?,
+                }
+                write!(f, " <=> ")?;
+                match r {
+                    box And(ref l, ref r) => write!(f, "{} + {}", l, r),
+                    box Or(ref l, ref r) => write!(f, "{} | {}", l, r),
+                    box Xor(ref l, ref r) => write!(f, "{} ^ {}", l, r),
+                    box x => write!(f, "{}", x),
+                }
+            }
         }
     }
 }
