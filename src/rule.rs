@@ -59,6 +59,107 @@ impl Rule {
             _ => unreachable!(),
         }
     }
+
+    pub fn possible_inputs(&self) -> Vec<Facts> {
+        use Rule::*;
+
+        match self {
+            IfThen(ref l, _) => l.possible_combinations_recursive(),
+            IfAndOnlyIf(ref l, ref r) => {
+                let mut res = l.possible_combinations_recursive();
+                res.extend(r.possible_combinations_recursive());
+                res
+            },
+            _ => unreachable!(),
+        }
+    }
+
+    pub fn possible_outputs(&self) -> Vec<Facts> {
+        use Rule::*;
+
+        match self {
+            IfThen(_, ref r) => r.possible_combinations_recursive(),
+            IfAndOnlyIf(ref l, ref r) => {
+                let mut res = l.possible_combinations_recursive();
+                res.extend(r.possible_combinations_recursive());
+                res
+            },
+            _ => unreachable!(),
+        }
+    }
+
+    pub fn possible_combinations_recursive(&self) -> Vec<Facts> {
+        use Rule::*;
+
+        let mut res = Vec::new();
+
+        match self {
+            Char(ref c) => {
+                let facts = Facts::new_yes_no(&[*c], &[]);
+                res.push(facts);
+            }
+            Not(ref l) => {
+                for fact in l.possible_combinations_recursive() {
+                    res.push(fact.invert());
+                }
+            }
+            And(ref l, ref r) => {
+                let possible_l = l.possible_combinations_recursive();
+                let possible_r = r.possible_combinations_recursive();
+
+                for p_l in possible_l.iter() {
+                    for p_r in possible_r.iter() {
+                        if let Some(merged) = p_l.merge(p_r) {
+                            res.push(merged);
+                        }
+                    }
+                }
+            }
+            Or(ref l, ref r) => {
+                let possible_l = l.possible_combinations_recursive();
+                let possible_r = r.possible_combinations_recursive();
+
+                for p_l in possible_l.iter() {
+                    res.push(p_l.clone());
+                }
+
+                for p_r in possible_r.iter() {
+                    res.push(p_r.clone());
+                }
+
+                for p_l in possible_l.iter() {
+                    for p_r in possible_r.iter() {
+                        if let Some(merged) = p_l.merge(p_r) {
+                            res.push(merged);
+                        }
+                    }
+                }
+            }
+            Xor(ref l, ref r) => {
+                let possible_l = l.possible_combinations_recursive();
+                let possible_r = r.possible_combinations_recursive();
+
+                for p_l in possible_l.iter() {
+                    for p_r in possible_r.iter().map(|f| f.invert()) {
+                        if let Some(merged) = p_l.merge(&p_r) {
+                            res.push(merged);
+                        }
+                    }
+                }
+
+                for p_l in possible_l.iter().map(|f| f.invert()) {
+                    for p_r in possible_r.iter() {
+                        if let Some(merged) = p_l.merge(p_r) {
+                            res.push(merged);
+                        }
+                    }
+                }
+            }
+            _ => unreachable!(),
+        }
+
+        res
+    }
 }
 
 impl fmt::Display for Rule {

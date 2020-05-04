@@ -19,6 +19,32 @@ impl Facts {
         Facts { yes, no }
     }
 
+    pub fn new_yes_no(yes: &[char], no: &[char]) -> Facts {
+        let yes = yes.iter().cloned().collect();
+        let no = no.iter().cloned().collect();
+
+        Facts { yes, no }
+    }
+
+    /// Merge `self` with `other`, returning `None` if facts are controversial
+    pub fn merge(&self, other: &Facts) -> Option<Facts> {
+        let yes: HashSet<char> = self.yes.iter().chain(other.yes.iter()).cloned().collect();
+        let no: HashSet<char> = self.no.iter().chain(other.no.iter()).cloned().collect();
+
+        for fact in yes.iter() {
+            if no.contains(fact) {
+                return None;
+            }
+        }
+
+        Some(Facts { yes, no })
+    }
+
+    /// Make true facts false and false facts true
+    pub fn invert(&self) -> Facts {
+        Facts { yes: self.no.clone(), no: self.yes.clone() }
+    }
+
     pub fn is_empty(&self) -> bool {
         self.yes.is_empty() && self.no.is_empty()
     }
