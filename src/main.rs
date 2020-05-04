@@ -3,15 +3,21 @@ use rustyline::error::ReadlineError;
 use std::collections::HashSet;
 
 fn run(usable_rules: HashSet<Rule>, given: Facts, mut find: Facts, level: usize) -> Facts {
+    macro_rules! levelprintln {
+        ($fmt:expr, $($args:expr),*) => {
+            println!(concat!("{}", $fmt), "  ".repeat(level), $($args),*)
+        }
+    }
+
     find.remove_contained(&given);
 
     if find.is_empty() {
-        println!("{}search list empty, returning {}", "  ".repeat(level), given);
+        levelprintln!("search list empty, returning {}", given);
         return given;
     }
 
     if usable_rules.is_empty() {
-        println!("{}no more rules to use, returning {}", "  ".repeat(level), given);
+        levelprintln!("no more rules to use, returning {}", given);
         return given;
     }
 
@@ -21,10 +27,10 @@ fn run(usable_rules: HashSet<Rule>, given: Facts, mut find: Facts, level: usize)
             let mut usable_rules = usable_rules.clone();
             usable_rules.remove(&rule);
 
-            println!("{}try {} with {}", "  ".repeat(level), rule, given);
+            levelprintln!("try {} with {}", rule, given);
             run(usable_rules, given.clone(), find.clone(), level + 1);
         } else {
-            println!("{}{} can't give {}", "  ".repeat(level), rule, find);
+            levelprintln!("{} can't give {}", rule, find);
         }
     }
 
@@ -39,6 +45,8 @@ fn main() {
     loop {
         match rl.readline("> ") {
             Ok(line) => {
+                let line = line.trim_end();
+
                 match parser::query(&line) {
                     Ok(query) => match query {
                         Query::Rule(rule) => {
