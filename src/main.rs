@@ -60,7 +60,7 @@ fn run(usable_rules: HashSet<Rule>, mut given: Facts, mut find: Facts, level: us
 fn main() {
     let mut rl = rustyline::Editor::<()>::new();
     let mut rules = HashSet::new();
-    let mut facts = Facts::new("");
+    let mut facts = Facts::new(&[], &[], &[]);
 
     loop {
         match rl.readline("> ") {

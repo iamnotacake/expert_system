@@ -90,7 +90,7 @@ impl Rule {
         use Rule::*;
 
         match self {
-            Char(ref c) => Facts::new_yes_no(&[*c], &[]),
+            Char(ref c) => Facts::new(&[*c], &[], &[]),
             Not(ref l) => l.possible_inputs_all_recursive(),
             And(ref l, ref r) => {
                 l.possible_inputs_all_recursive().merge(&r.possible_inputs_all_recursive()).unwrap()
@@ -126,7 +126,7 @@ impl Rule {
 
         match self {
             Char(ref c) => {
-                let facts = Facts::new_yes_no(&[*c], &[]);
+                let facts = Facts::new(&[*c], &[], &[]);
                 res.push(facts);
             }
             Not(ref l) => {

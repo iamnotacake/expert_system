@@ -5,28 +5,36 @@ use std::fmt;
 pub struct Facts {
     yes: HashSet<char>,
     no: HashSet<char>,
+    unknown: HashSet<char>,
 }
 
 impl Facts {
-    pub fn new(chars: &str) -> Facts {
+    pub fn new_from_chars_str(chars: &str) -> Facts {
         let mut yes = HashSet::with_capacity(32);
-        let no = HashSet::with_capacity(32);
+        let no = HashSet::new();
+        let unknown = HashSet::new();
 
         for c in chars.chars().map(|c| c.to_ascii_uppercase()) {
             yes.insert(c);
         }
 
-        Facts { yes, no }
+        Facts { yes, no, unknown }
     }
 
-    pub fn new_yes_no(yes: &[char], no: &[char]) -> Facts {
-        let yes = yes.iter().cloned().collect();
-        let no = no.iter().cloned().collect();
+    pub fn new(yes: &[char], no: &[char], unknown: &[char]) -> Facts {
+        let yes: HashSet<char> = yes.iter().cloned().collect();
+        let no: HashSet<char> = no.iter().cloned().collect();
+        let unknown = unknown
+            .iter()
+            .filter(|fact| !yes.contains(fact) && !no.contains(fact))
+            .cloned()
+            .collect();
 
-        Facts { yes, no }
+        Facts { yes, no, unknown }
     }
 
     /// Merge `self` with `other`, returning `None` if facts are controversial
+    /// and removing all known facts from unknown list
     pub fn merge(&self, other: &Facts) -> Option<Facts> {
         let yes: HashSet<char> = self.yes.iter().chain(other.yes.iter()).cloned().collect();
         let no: HashSet<char> = self.no.iter().chain(other.no.iter()).cloned().collect();
@@ -37,12 +45,19 @@ impl Facts {
             }
         }
 
-        Some(Facts { yes, no })
+        let unknown: HashSet<char> = self.unknown
+            .iter()
+            .chain(other.unknown.iter())
+            .filter(|fact| !yes.contains(fact) && !no.contains(fact))
+            .cloned()
+            .collect();
+
+        Some(Facts { yes, no, unknown })
     }
 
     /// Make true facts false and false facts true
     pub fn invert(&self) -> Facts {
-        Facts { yes: self.no.clone(), no: self.yes.clone() }
+        Facts { yes: self.no.clone(), no: self.yes.clone(), unknown: self.unknown.clone() }
     }
 
     pub fn is_empty(&self) -> bool {
@@ -55,6 +70,10 @@ impl Facts {
 
     pub fn no(&self, c: char) -> bool {
         self.no.get(&c).is_some()
+    }
+
+    pub fn unknown(&self, c: char) -> bool {
+        self.unknown.get(&c).is_some()
     }
 
     /// Remove facts that are known in `other` from self
@@ -94,6 +113,23 @@ impl fmt::Display for Facts {
             write!(f, " false: ")?;
 
             let mut keys = self.no.iter().collect::<Vec<_>>();
+            keys.sort();
+
+            for (idx, key) in keys.iter().enumerate() {
+                if idx == 0 {
+                    write!(f, "{}", key);
+                } else {
+                    write!(f, ", {}", key);
+                }
+            }
+
+            write!(f, " ")?;
+        }
+
+        if !self.unknown.is_empty() {
+            write!(f, " false: ")?;
+
+            let mut keys = self.unknown.iter().collect::<Vec<_>>();
             keys.sort();
 
             for (idx, key) in keys.iter().enumerate() {
