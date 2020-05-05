@@ -9,18 +9,6 @@ pub struct Facts {
 }
 
 impl Facts {
-    pub fn new_from_chars_str(chars: &str) -> Facts {
-        let mut yes = HashSet::with_capacity(32);
-        let no = HashSet::new();
-        let unknown = HashSet::new();
-
-        for c in chars.chars().map(|c| c.to_ascii_uppercase()) {
-            yes.insert(c);
-        }
-
-        Facts { yes, no, unknown }
-    }
-
     pub fn new(yes: &[char], no: &[char], unknown: &[char]) -> Facts {
         let yes: HashSet<char> = yes.iter().cloned().collect();
         let no: HashSet<char> = no.iter().cloned().collect();
@@ -127,7 +115,7 @@ impl fmt::Display for Facts {
         }
 
         if !self.unknown.is_empty() {
-            write!(f, " false: ")?;
+            write!(f, " unknown: ")?;
 
             let mut keys = self.unknown.iter().collect::<Vec<_>>();
             keys.sort();

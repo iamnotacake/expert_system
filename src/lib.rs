@@ -57,9 +57,9 @@ peg::parser! {
             = l:Expr() "<=>" r:Expr() { Rule::IfAndOnlyIf(box l, box r) }
 
         pub rule given() -> Facts
-            = "=" c:$(['a'..='z' | 'A'..='Z']*) { Facts::new_from_chars_str(c) }
+            = "=" c:$(['a'..='z' | 'A'..='Z']*) { Facts::new(&c.chars().collect::<Vec<_>>(), &[], &[]) }
 
         pub rule find() -> Facts
-            = "?" c:$(['a'..='z' | 'A'..='Z']+) { Facts::new_from_chars_str(c) }
+            = "?" c:$(['a'..='z' | 'A'..='Z']+) { Facts::new(&[], &[], &c.chars().collect::<Vec<_>>()) }
     }
 }

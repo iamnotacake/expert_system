@@ -3,7 +3,7 @@ use expert_system::{parser, Facts, Query, Rule};
 use rustyline::error::ReadlineError;
 use std::collections::HashSet;
 
-fn run(usable_rules: HashSet<Rule>, mut given: Facts, mut find: Facts, level: usize) -> Facts {
+fn run(usable_rules: HashSet<Rule>, mut facts: Facts, level: usize) -> Facts {
     macro_rules! levelprintln {
         ($fmt:literal) => {
             println!(concat!("{}", $fmt), "  ".repeat(level))
@@ -13,48 +13,9 @@ fn run(usable_rules: HashSet<Rule>, mut given: Facts, mut find: Facts, level: us
         };
     }
 
-    find.remove_contained(&given);
+    // TODO
 
-    if find.is_empty() {
-        levelprintln!("search list empty, returning {}", given.to_string().yellow());
-        return given;
-    }
-
-    if usable_rules.is_empty() {
-        levelprintln!("no more rules to use, returning {}", given.to_string().green());
-        return given;
-    }
-
-    for rule in usable_rules.iter() {
-        if rule.can_give(&find) {
-            // recurse into
-            levelprintln!("try {} with {}", rule.to_string().blue(), given.to_string().green());
-
-            if let Some(outcomes) = rule.try_match(&given) {
-                for outcome in outcomes.iter() {
-                    if let Some(given) = given.merge(outcome) {
-                        let mut usable_rules = usable_rules.clone();
-                        usable_rules.remove(&rule);
-
-                        run(usable_rules, given, find.clone(), level + 1);
-                    }
-                }
-            } else {
-                // levelprintln!("not enough input facts");
-
-                let mut usable_rules = usable_rules.clone();
-                usable_rules.remove(&rule);
-
-                let find = find.merge(&rule.possible_inputs_all()).unwrap();
-
-                given = given.merge(&run(usable_rules, given.clone(), find, level + 1)).unwrap();
-            }
-        } else {
-            levelprintln!("{} can't give {}", rule.to_string().blue(), find.to_string().yellow());
-        }
-    }
-
-    return given;
+    return facts;
 }
 
 fn main() {
@@ -71,15 +32,15 @@ fn main() {
                     Ok(query) => match query {
                         Query::Rule(rule) => {
                             println!("Rule: {}", rule);
-                            println!("Mentioned facts: {:?}", rule.iter_facts().collect::<Vec<_>>());
-                            let possible_inputs = rule.possible_inputs();
-                            for input in possible_inputs.iter() {
-                                println!("Possible input: {}", input);
-                            }
-                            let possible_outputs = rule.possible_outputs();
-                            for output in possible_outputs.iter() {
-                                println!("Possible output: {}", output);
-                            }
+                            // println!("Mentioned facts: {:?}", rule.iter_facts().collect::<Vec<_>>());
+                            // let possible_inputs = rule.possible_inputs();
+                            // for input in possible_inputs.iter() {
+                            //     println!("Possible input: {}", input);
+                            // }
+                            // let possible_outputs = rule.possible_outputs();
+                            // for output in possible_outputs.iter() {
+                            //     println!("Possible output: {}", output);
+                            // }
                             rules.insert(rule);
                         }
                         Query::Given(list) => {
@@ -89,7 +50,8 @@ fn main() {
                         Query::Find(find) => {
                             println!("Find: {}", find);
 
-                            let result = run(rules.clone(), facts.clone(), find.clone(), 0);
+                            facts = facts.merge(&find).unwrap();
+                            let result = run(rules.clone(), facts.clone(), 0);
                             println!("Result: {}", result);
                         }
                         Query::Dump => {
