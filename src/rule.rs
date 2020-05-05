@@ -28,7 +28,7 @@ impl Rule {
         use Rule::*;
 
         match self {
-            Char(ref c) => facts.yes(*c),
+            Char(ref c) => facts.is_yes(*c),
             Not(ref l) => !l.can_take_recursive(facts),
             And(ref l, ref r) => l.can_take_recursive(facts) && r.can_take_recursive(facts),
             Or(ref l, ref r) => l.can_take_recursive(facts) || r.can_take_recursive(facts),
@@ -51,7 +51,7 @@ impl Rule {
         use Rule::*;
 
         match self {
-            Char(ref c) => facts.no(*c) || facts.yes(*c),
+            Char(ref c) => facts.is_no(*c) || facts.is_yes(*c),
             Not(ref l) => l.can_give_recursive(facts),
             And(ref l, ref r) => l.can_give_recursive(facts) || r.can_give_recursive(facts),
             Or(ref l, ref r) => l.can_give_recursive(facts) || r.can_give_recursive(facts),
@@ -221,7 +221,7 @@ impl Rule {
         use Rule::*;
 
         match self {
-            Char(ref c) => facts.yes(*c),
+            Char(ref c) => facts.is_yes(*c),
             Not(ref l) => l.try_match_recursive(&facts.invert()),
             And(ref l, ref r) => l.try_match_recursive(facts) && r.try_match_recursive(facts),
             Or(ref l, ref r) => l.try_match_recursive(facts) || r.try_match_recursive(facts),

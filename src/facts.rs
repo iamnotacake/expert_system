@@ -3,9 +3,9 @@ use std::fmt;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Facts {
-    yes: HashSet<char>,
-    no: HashSet<char>,
-    unknown: HashSet<char>,
+    pub yes: HashSet<char>,
+    pub no: HashSet<char>,
+    pub unknown: HashSet<char>,
 }
 
 impl Facts {
@@ -48,19 +48,31 @@ impl Facts {
         Facts { yes: self.no.clone(), no: self.yes.clone(), unknown: self.unknown.clone() }
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.yes.is_empty() && self.no.is_empty()
+    pub fn is_empty(&self, check_yes: bool, check_no: bool, check_unknown: bool) -> bool {
+        if check_yes && !self.yes.is_empty() {
+            return false;
+        }
+
+        if check_no && !self.no.is_empty() {
+            return false;
+        }
+
+        if check_unknown && !self.unknown.is_empty() {
+            return false;
+        }
+
+        return true;
     }
 
-    pub fn yes(&self, c: char) -> bool {
+    pub fn is_yes(&self, c: char) -> bool {
         self.yes.get(&c).is_some()
     }
 
-    pub fn no(&self, c: char) -> bool {
+    pub fn is_no(&self, c: char) -> bool {
         self.no.get(&c).is_some()
     }
 
-    pub fn unknown(&self, c: char) -> bool {
+    pub fn is_unknown(&self, c: char) -> bool {
         self.unknown.get(&c).is_some()
     }
 
