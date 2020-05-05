@@ -71,6 +71,7 @@ fn main() {
                     Ok(query) => match query {
                         Query::Rule(rule) => {
                             println!("Rule: {}", rule);
+                            println!("Mentioned facts: {:?}", rule.iter_facts().collect::<Vec<_>>());
                             let possible_inputs = rule.possible_inputs();
                             for input in possible_inputs.iter() {
                                 println!("Possible input: {}", input);

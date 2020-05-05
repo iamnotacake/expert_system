@@ -229,6 +229,25 @@ impl Rule {
             _ => unreachable!(),
         }
     }
+
+    /// Iterate over facts mentioned in this rule
+    pub fn iter_facts<'a>(&'a self) -> impl Iterator<Item=char> + 'a {
+        use Rule::*;
+
+        let mut stack = Vec::with_capacity(8);
+
+        match self {
+            Char(_) => stack.push(self),
+            Not(ref l) => stack.push(l.as_ref()),
+            And(ref l, ref r) => { stack.push(l.as_ref()); stack.push(r.as_ref()); }
+            Or(ref l, ref r) => { stack.push(l.as_ref()); stack.push(r.as_ref()); }
+            Xor(ref l, ref r) => { stack.push(l.as_ref()); stack.push(r.as_ref()); }
+            IfThen(ref l, ref r) => { stack.push(l.as_ref()); stack.push(r.as_ref()); }
+            IfAndOnlyIf(ref l, ref r) => { stack.push(l.as_ref()); stack.push(r.as_ref()); }
+        }
+
+        RuleFactsIterator { stack }
+    }
 }
 
 impl fmt::Display for Rule {
@@ -271,6 +290,33 @@ impl fmt::Display for Rule {
                     box Xor(ref l, ref r) => write!(f, "{} ^ {}", l, r),
                     box x => write!(f, "{}", x),
                 }
+            }
+        }
+    }
+}
+
+pub struct RuleFactsIterator<'a> {
+    stack: Vec<&'a Rule>,
+}
+
+impl<'a> Iterator for RuleFactsIterator<'a> {
+    type Item = char;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        use Rule::*;
+
+        loop {
+            if let Some(rule) = self.stack.pop() {
+                match rule {
+                    Char(ref c) => return Some(*c),
+                    Not(ref l) => { self.stack.push(l.as_ref()); continue; }
+                    And(ref l, ref r) => { self.stack.push(l.as_ref()); self.stack.push(r.as_ref()); continue; }
+                    Or(ref l, ref r) => { self.stack.push(l.as_ref()); self.stack.push(r.as_ref()); continue; }
+                    Xor(ref l, ref r) => { self.stack.push(l.as_ref()); self.stack.push(r.as_ref()); continue; }
+                    _ => unreachable!(),
+                }
+            } else {
+                return None;
             }
         }
     }
