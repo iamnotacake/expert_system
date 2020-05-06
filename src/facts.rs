@@ -74,6 +74,8 @@ impl Facts {
 
     pub fn is_unknown(&self, c: char) -> bool {
         self.unknown.get(&c).is_some()
+        // && !self.yes.get(&c).is_some()
+        // && !self.no.get(&c).is_some()
     }
 
     /// Remove facts that are known in `other` from self
