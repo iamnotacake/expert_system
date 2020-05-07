@@ -1,11 +1,11 @@
 use crossterm::style::Colorize;
 use expert_system::{parser, Facts, Query, Rule};
 use rustyline::error::ReadlineError;
-use std::collections::HashSet;
+use std::collections::{ HashSet, HashMap };
 
 fn run(
     rules: &HashSet<Rule>,
-    used_rules: HashSet<Rule>,
+    used_rules: HashMap<Rule, bool>,
     mut facts: Facts,
     level: usize
 ) -> Facts {
@@ -34,16 +34,8 @@ fn run(
             let (l_facts, r_facts) =
                 (l.iter_facts().collect::<Vec<_>>(), r.iter_facts().collect::<Vec<_>>());
 
-            // If we already tried this rule
-            if used_rules.contains(rule) {
-                // And we don't have all the facts it needs
-                if l_facts.iter().any(|&fact| facts.is_unknown(fact)) {
-                    // levelprintln!("Rule {} already used, skipping", rule.to_string().cyan());
-                    // Then just skip it
-                    continue;
-                } else {
-                    // levelprintln!("Rule {} already used", rule.to_string().cyan());
-                }
+            if used_rules.get(rule) == Some(&true) {
+                continue;
             }
 
             if r_facts.iter().any(|&fact| facts.is_unknown(fact)) {
@@ -65,24 +57,27 @@ fn run(
                             }
 
                             let mut used_rules = used_rules.clone();
-                            used_rules.insert(rule.clone());
+                            used_rules.insert(rule.clone(), true);
 
+                            let num_unknown = facts.unknown.len();
                             let new_facts = run(rules, used_rules, merged_facts, level + 1);
                             if new_facts.unknown.is_empty() {
                                 return new_facts;
+                            } else if new_facts.unknown.len() < num_unknown {
+                                facts = new_facts;
                             }
                         } else {
                             levelprintln!("{}", "Conflict".to_string().red());
                         }
                     }
                 } else {
-                    if used_rules.contains(rule) {
+                    if used_rules.get(rule) == Some(&false) {
                         levelprintln!("{}", "No match".to_string().yellow());
                         continue;
                     }
 
                     let mut used_rules = used_rules.clone();
-                    used_rules.insert(rule.clone());
+                    used_rules.insert(rule.clone(), false);
 
                     let mut facts = facts.clone();
                     for l_fact in l_facts.iter() {
@@ -91,9 +86,12 @@ fn run(
                         }
                     }
 
+                    let num_unknown = facts.unknown.len();
                     let new_facts = run(rules, used_rules, facts, level + 1);
                     if new_facts.unknown.is_empty() {
                         return new_facts;
+                    } else if new_facts.unknown.len() < num_unknown {
+                        facts = new_facts;
                     }
                 }
             }
@@ -136,7 +134,7 @@ fn main() {
                             println!("Find: {}", find);
 
                             facts = facts.merge(&find).unwrap();
-                            let result = run(&rules, HashSet::new(), facts.clone(), 0);
+                            let result = run(&rules, HashMap::new(), facts.clone(), 0);
                             println!("Result: {}", result);
                         }
                         Query::Dump => {
